@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Crypto Timing Demo</title>
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <style>
+        body { margin-top: 40px; }
+
+        .spinner {
+            display: none;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .copy-btn {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+
+<body class="container">
+
+    <h2 class="text-center mb-4">Cryptographic Algorithm Timing Calculator</h2>
+
+    <!-- FORM -->
+    <form method="POST" class="card p-4 shadow" id="calcForm">
+        <div class="form-group">
+            <label>Enter plaintext:</label>
+            <input type="text" name="plaintext" class="form-control" required>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Calculate</button>
+    </form>
+
+    <!-- SPINNER -->
+    <div class="spinner" id="loadingSpinner">
+        <div class="spinner-border text-primary" role="status"></div>
+        <p>Computing, please wait...</p>
+    </div>
+
+    <!-- RESULTS -->
+    {% if result %}
+    <div class="mt-5">
+        <h3 class="text-center">Results (in milliseconds)</h3>
+
+        <table class="table table-bordered table-striped mt-3 result-table" id="resultTable">
+            <thead class="thead-dark">
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Key Gen Time (ms)</th>
+                    <th>Encrypt Time (ms)</th>
+                    <th>Decrypt Time (ms)</th>
+                    <th>Total Time (ms)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for algo, times in result.items() %}
+                <tr>
+                    <td>{{ algo }}</td>
+                    <td>{{ "%.3f"|format(times[0] * 1000) }}</td>
+                    <td>{{ "%.3f"|format(times[1] * 1000) }}</td>
+                    <td>{{ "%.3f"|format(times[2] * 1000) }}</td>
+                    <td>{{ "%.3f"|format(times[3] * 1000) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button class="btn btn-success copy-btn" id="copyBtn">Copy Table</button>
+    </div>
+    {% endif %}
+
+
+<!-- JAVASCRIPT -->
+<script>
+    // Show spinner when user clicks Calculate
+    document.getElementById("calcForm").addEventListener("submit", function() {
+        document.getElementById("loadingSpinner").style.display = "block";
+    });
+
+    // Copy table contents to clipboard (Excel friendly)
+    document.getElementById("copyBtn")?.addEventListener("click", function () {
+        let table = document.getElementById("resultTable");
+        let text = "";
+
+        for (let row of table.rows) {
+            let rowData = [];
+            for (let cell of row.cells) {
+                rowData.push(cell.innerText);
+            }
+            text += rowData.join("\t") + "\n";   // TAB → Excel-compatible
+        }
+
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Table copied! You can now paste into Excel or Google Sheets.");
+        });
+    });
+</script>
+
+</body>
+</html>
